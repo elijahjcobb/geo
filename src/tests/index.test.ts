@@ -22,7 +22,93 @@
  *
  */
 
-import {ECGDistance, ECGDistanceUnit} from "../index"
+import {ECGDistance, ECGDistanceUnit, ECGPoint} from "../index"
+
+describe("Geo Points", () => {
+
+	test("Distance Between Two Points", () => {
+
+		const p1: ECGPoint = new ECGPoint(29.7761, -95.1147);
+		const p2: ECGPoint = new ECGPoint(19.4006, -99.0148);
+
+		const allowedError: ECGDistance = new ECGDistance(0.5, ECGDistanceUnit.Miles);
+		const actual: ECGDistance = new ECGDistance(757, ECGDistanceUnit.Miles);
+
+		const d: ECGDistance = p1.distanceToPoint(p2);
+		const distance: number = d.distance;
+		const difference: number = Math.abs(distance - actual.toMiles().distance);
+		expect(difference).toBeLessThan(allowedError.toMiles().distance);
+
+
+	});
+
+});
+
+describe("Unit Converters", () => {
+
+	describe("Inch Base", () => {
+
+		test("in to ft", () => {
+
+			const d: ECGDistance = new ECGDistance(18, ECGDistanceUnit.Inches).toFeet();
+			expect(d.distance).toBe(1.5);
+			expect(d.unit).toBe(ECGDistanceUnit.Feet);
+
+		});
+
+		test("in to mi", () => {
+
+			const d: ECGDistance = new ECGDistance(69696, ECGDistanceUnit.Inches).toMiles();
+			expect(d.distance).toBe(1.1);
+			expect(d.unit).toBe(ECGDistanceUnit.Miles);
+
+		});
+
+	});
+
+	describe("Feet Base", () => {
+
+		test("ft to in", () => {
+
+			const d: ECGDistance = new ECGDistance(2, ECGDistanceUnit.Feet).toInches();
+
+			expect(d.distance).toBe(24);
+			expect(d.unit).toBe(ECGDistanceUnit.Inches);
+
+		});
+
+		test("ft to mi", () => {
+
+			const d: ECGDistance = new ECGDistance(5808, ECGDistanceUnit.Feet).toMiles();
+			expect(d.distance).toBe(1.1);
+			expect(d.unit).toBe(ECGDistanceUnit.Miles);
+
+		});
+
+	});
+
+	describe("Mile Base", () => {
+
+		test("mi to in", () => {
+
+			const d: ECGDistance = new ECGDistance(2, ECGDistanceUnit.Miles).toInches();
+
+			expect(d.distance).toBe(126720);
+			expect(d.unit).toBe(ECGDistanceUnit.Inches);
+
+		});
+
+		test("mi to ft", () => {
+
+			const d: ECGDistance = new ECGDistance(2, ECGDistanceUnit.Miles).toFeet();
+			expect(d.distance).toBe(10560);
+			expect(d.unit).toBe(ECGDistanceUnit.Feet);
+
+		});
+
+	});
+
+});
 
 describe("Smart Unit Converter", () => {
 
@@ -82,7 +168,7 @@ describe("Smart Unit Converter", () => {
 
 		test("Move to Inch", () => {
 
-			const d: ECGDistance = new ECGDistance(0.001, ECGDistanceUnit.Miles).smartConvert();
+			const d: ECGDistance = new ECGDistance(0.0001, ECGDistanceUnit.Miles).smartConvert();
 			expect(d.unit).toEqual(ECGDistanceUnit.Inches);
 
 		});
@@ -90,7 +176,6 @@ describe("Smart Unit Converter", () => {
 		test("Move to Feet", () => {
 
 			const d: ECGDistance = new ECGDistance(0.099, ECGDistanceUnit.Miles).smartConvert();
-			console.log(d);
 			expect(d.unit).toEqual(ECGDistanceUnit.Feet);
 
 		});

@@ -22,11 +22,6 @@
  *
  */
 
-
-export const ECGConstants = {
-	earthCircumference: 24859.734
-};
-
 export enum ECGDistanceUnit {
 	Inches,
 	Feet,
@@ -122,14 +117,12 @@ export class ECGDistance {
 
 	}
 
-	private toUnitSmart(passedUnit: ECGDistanceUnit): ECGDistanceUnit {
-
-		let unit: ECGDistanceUnit = passedUnit;
+	private toUnitSmart(distance: ECGDistance): ECGDistance {
 
 		let downUnit: number = 0;
 		let upUnit: number = 0;
 
-		switch (unit) {
+		switch (distance.unit) {
 			case ECGDistanceUnit.Miles:
 				downUnit = 0.1;
 				break;
@@ -142,16 +135,17 @@ export class ECGDistance {
 				break;
 		}
 
-		if (this.distance <= downUnit && unit > ECGDistanceUnit.Inches) unit --;
-		else if (this.distance >= upUnit && unit < ECGDistanceUnit.Miles) unit ++;
+		let unit: ECGDistanceUnit = distance.unit;
 
-		return passedUnit === unit ? unit : this.toUnitSmart(unit);
+		if (distance.distance < downUnit && distance.unit > ECGDistanceUnit.Inches) return this.toUnitSmart(distance.toUnit(--unit));
+		else if (distance.distance >= upUnit && distance.unit < ECGDistanceUnit.Miles) return this.toUnitSmart(distance.toUnit(++unit));
+		else return distance;
 
 	}
 
 	public smartConvert(): ECGDistance {
 
-		return this.toUnit(this.toUnitSmart(this.unit));
+		return this.toUnitSmart(this);
 
 	}
 
@@ -160,6 +154,11 @@ export class ECGDistance {
 	public toMiles(): ECGDistance { return this.toUnit(ECGDistanceUnit.Miles); }
 
 }
+
+export const ECGConstants = {
+	earthCircumference: new ECGDistance(24859.734, ECGDistanceUnit.Miles),
+	earthRadius: new ECGDistance(3959, ECGDistanceUnit.Miles)
+};
 
 export class ECGBox {
 
@@ -196,26 +195,31 @@ export class ECGPoint {
 	public lineDistances(): ECGLineDistances {
 
 		return {
-			lat: new ECGDistance(Math.abs(ECGConstants.earthCircumference / 360), ECGDistanceUnit.Miles),
-			lng: new ECGDistance(Math.abs((ECGConstants.earthCircumference / 360) * Math.cos(this.lat)), ECGDistanceUnit.Miles)
+			lat: new ECGDistance(Math.abs(ECGConstants.earthCircumference.distance / 360), ECGDistanceUnit.Miles),
+			lng: new ECGDistance(Math.abs((ECGConstants.earthCircumference.distance / 360) * Math.cos(this.lat)), ECGDistanceUnit.Miles)
 		}
 
 	}
 
 	public distanceToPoint(point: ECGPoint): ECGDistance {
 
-		const lineDistance: ECGLineDistances = this.lineDistances();
+		let lat1: number = this.lat;
+		let lon1: number = this.lng;
+		let lat2: number = point.lat;
+		let lon2: number = point.lng;
 
-		const latDiff: number = Math.abs(this.lat - point.lat);
-		const latDistance: number = latDiff * lineDistance.lat.distance;
+		let radiansLat1: number = Math.PI * lat1 / 180;
+		let radiansLat2: number = Math.PI * lat2 / 180;
+		let theta: number = lon1 - lon2;
+		let radianTheta: number = Math.PI * theta/180;
+		let dist: number = Math.sin(radiansLat1) * Math.sin(radiansLat2) + Math.cos(radiansLat1) * Math.cos(radiansLat2) * Math.cos(radianTheta);
+		dist = Math.acos(dist);
+		dist = dist * 180/Math.PI;
+		dist = dist * 60 * 1.1515;
+		dist = dist * 1.609344;
+		dist = dist * 0.6213712;
 
-		const lngDiff: number = Math.abs(this.lng - point.lng);
-		const lngDistance: number = lngDiff * lineDistance.lng.distance;
-		const hypot: number = Math.sqrt(Math.pow(latDistance, 2) + Math.pow(lngDistance, 2));
-
-		return new ECGDistance(hypot, ECGDistanceUnit.Miles);
-
-
+		return new ECGDistance(dist, ECGDistanceUnit.Miles);
 	}
 
 	public findBoxWithRadius(radius: ECGDistance): ECGBox {

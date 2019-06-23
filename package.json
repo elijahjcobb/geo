@@ -22,7 +22,10 @@
 		"lat",
 		"lng",
 		"latitude",
-		"longitude"
+		"longitude",
+		"haversine",
+		"distance",
+		"point"
 	],
 	"author": "Elijah Cobb <elijah@elijahcobb.com> (https://elijahcobb.com/)",
 	"license": "MIT",
