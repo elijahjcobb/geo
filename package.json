@@ -1,0 +1,42 @@
+{
+	"name": "@elijahjcobb/geo",
+	"version": "0.0.1",
+	"description": "A package to assist in geo points.",
+	"main": "dist/index",
+	"types": "dist/index",
+	"scripts": {
+		"prepublishOnly": "npm run compile",
+		"compile": "npm run clean && /usr/local/bin/tsc -p tsconfig.json",
+		"watch": "tsc -w -p .",
+		"clean": "rm -rf dist"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/elijahjcobb/geo.git"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"keywords": [
+		"geo",
+		"lat",
+		"lng",
+		"latitude",
+		"longitude"
+	],
+	"author": "Elijah Cobb <elijah@elijahcobb.com> (https://elijahcobb.com/)",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/elijahjcobb/geo/issues"
+	},
+	"homepage": "https://github.com/elijahjcobb/geo#readme",
+	"dependencies": {},
+	"devDependencies": {
+		"@types/node": "latest",
+		"jest": "latest",
+		"@types/jest": "latest"
+	},
+	"files": [
+		"dist"
+	]
+}
